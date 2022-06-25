@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.PendingProcessingMapper">
+    <resultMap type="com.jsnx.jzzy.datamonitor.entity.PendingProcessing" id="PendingProcessing">
+        <result column="rnum" property="rNum"/>
+    </resultMap>
+
+    <select id="queryPendingProcessing" resultMap="PendingProcessing">
+        select sum(rnum) rnum from (
+        select sum(c.rnum) rnum,c.role_no from (
+        select NVL(t.rnum,0) rnum,b.role_no from
+        (select distinct q.flow_node,q.role_no from sunds.sm_flow_node_param_tb q where q.role_no in ('ZY0001', 'ZY0002', 'ZY0003', 'ZY0004')) b
+        left join
+        (select t.name,count(t.name) rnum from SUNBPM.WORKITEM t WHERE t.state=#{state} and t.createtime > to_date(#{createtime},'yyyy/mm/dd hh24:mi:ss') and t.name not in ('MSQ','PSQ','HSQ')GROUP by t.name) t
+        on b.flow_node = t.name ) c
+        group by c.role_no)
+    </select>
+
+    <select id="querySqPendingProcessing" resultMap="PendingProcessing">
+        select sum(rnum) rnum from (
+      select b.flow_node,NVL(t.rnum,0) rnum,b.role_no from
+      (select distinct q.flow_node,q.role_no from sunds.sm_flow_node_param_tb q where q.flow_node in ('HSQ', 'PSQ', 'MSQ')) b
+      full join
+      (select t.name,count(t.name) rnum from SUNBPM.WORKITEM t WHERE t.state=#{state} and t.createtime > to_date(#{createtime},'yyyy/mm/dd hh24:mi:ss') and t.name in ('MSQ','PSQ','HSQ') GROUP by t.name) t
+      on b.role_no = t.name
+      )
+    </select>
+
+</mapper>

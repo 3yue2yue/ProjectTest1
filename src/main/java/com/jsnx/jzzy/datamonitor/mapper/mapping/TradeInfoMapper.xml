@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.TradeInfoMapper">
+    <resultMap type="com.jsnx.jzzy.datamonitor.entity.TradeInfo" id="TradeInfo">
+        <!--<result column="ZY_PENDING" property="zyPendingNum"/>
+        <result column="ZY_PROCESSING" property="zyProcessingNum"/>-->
+        <result column="ZY_COMPLETED" property="zyCompletedNum"/>
+        <result column="ZY_TOTAL" property="zyTotalNum"/>
+        <!--<result column="SQ_PENDING" property="sqPendingNum"/>
+        <result column="SQ_PROCESSING" property="sqProcessingNum"/>-->
+        <result column="SQ_COMPLETED" property="sqCompletedNum"/>
+        <result column="SQ_TOTAL" property="sqTotalNum"/>
+    </resultMap>
+
+    <select id="queryTradeInfo" resultMap="TradeInfo">
+        <!--SELECT SUM(CASE WHEN IS_JZZY='1' AND TASK_STATE IN ('6', '8') THEN 1 ELSE 0 END) ZY_PENDING,
+               SUM(CASE WHEN IS_JZZY='1' AND TASK_STATE IN ('1', '2', '3', '4', '5') THEN 1 ELSE 0 END)           ZY_PROCESSING,
+               SUM(CASE WHEN IS_JZZY='1' AND TASK_STATE IN ('4','7', '9', '10', '11', '12') THEN 1 ELSE 0 END)    ZY_COMPLETED,
+               SUM(CASE WHEN IS_JZZY='1' THEN 1 ELSE 0 END)                                                       ZY_TOTAL,
+               SUM(CASE WHEN IS_JZZY='0' AND TASK_STATE ='3' THEN 1 ELSE 0 END)                                   SQ_PENDING,
+               SUM(CASE WHEN IS_JZZY='0' AND TASK_STATE ='3' THEN 1 ELSE 0 END)                                   SQ_PROCESSING,
+               SUM(CASE WHEN IS_JZZY='0' AND TASK_STATE IN ('4', '7', '9') THEN 1 ELSE 0 END)                     SQ_COMPLETED,
+               SUM(CASE WHEN IS_JZZY='0' THEN 1 ELSE 0 END)                                                       SQ_TOTAL
+        FROM BP_TRANSLIST_TB
+        WHERE START_TIME >= #{startTime}
+        AND START_TIME &lt;= #{endTime}-->
+        SELECT
+        SUM(CASE WHEN IS_JZZY='1' AND TASK_STATE IN ('10', '11', '12') THEN 1 ELSE 0 END)                  ZY_COMPLETED,
+        SUM(CASE WHEN IS_JZZY='1' AND TASK_STATE IN ('7', '9', '10', '11', '12') THEN 1 ELSE 0 END)        ZY_TOTAL,
+        SUM(CASE WHEN IS_JZZY='0' AND TASK_STATE IN ('4', '10', '11', '12') THEN 1 ELSE 0 END)             SQ_COMPLETED,
+        SUM(CASE WHEN IS_JZZY='0' AND TASK_STATE IN ('4','7', '9', '10', '11', '12') THEN 1 ELSE 0 END)    SQ_TOTAL
+        FROM BP_TRANSLIST_TB
+        WHERE START_TIME >= #{startTime}
+        AND START_TIME &lt;= #{endTime}
+    </select>
+
+    <select id="querySq" resultMap="TradeInfo">
+        select COUNT(distinct a.task_id) SQ_TOTAL
+        from BP_TRANSLIST_TB a
+        left join sunaxis.bp_oper_detail_tb b
+        on a.task_id = b.task_id
+        where is_jzzy='1'
+        and b.flow_node='CAP'
+        and a.START_TIME >= #{startTime}
+        AND a.START_TIME &lt;= #{endTime}
+    </select>
+
+</mapper>

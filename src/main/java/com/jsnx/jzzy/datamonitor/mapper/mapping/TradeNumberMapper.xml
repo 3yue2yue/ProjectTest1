@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.TradeNumberMapper">
+
+    <select id="queryTradeNumber" resultType="integer">
+        select count(TASK_ID) NUM
+        from BP_TRANSLIST_TB
+        where IS_JZZY = #{type}
+        and START_TIME>=#{startTime}
+        and START_TIME &lt;=#{endTime}
+    </select>
+
+</mapper>

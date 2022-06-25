@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.CpsProcessTimeMapper">
+    <resultMap id="CpsProcessTime" type="com.jsnx.jzzy.datamonitor.entity.CpsProcessTime">
+        <result column="processTime" property="processTime"/>
+        <result column="chipCount" property="chipCount"/>
+        <result column="processTimeVerify" property="processTimeVerify"/>
+        <result column="chipCountVerify" property="chipCountVerify"/>
+    </resultMap>
+
+    <select id="aveCpsProcessTime" resultMap="CpsProcessTime">
+        SELECT sum(CASE WHEN r.SKILLID = '1001'
+                        THEN ceil((to_char(r.SUBMITTIME, 'yyyyMMddHH24MISS')
+                            - to_char(r.FETCHTTIME, 'yyyyMMddHH24MISS')))
+                            END) processTime,
+               sum(CASE WHEN r.SKILLID = '1001' THEN 1 ELSE 0 END) chipCount,
+               sum(CASE WHEN r.SKILLID = '4001'
+                        THEN ceil((to_char(r.SUBMITTIME, 'yyyyMMddHH24MISS')
+                            - to_char(r.FETCHTTIME, 'yyyyMMddHH24MISS')))
+                            END) processTimeVerify,
+               sum(CASE WHEN r.SKILLID = '4001' THEN 1 ELSE 0 END) chipCountVerify
+        FROM SUNCPS.CPS_RTCTASKSUBMIT_INFO r
+        WHERE to_char(r.FETCHTTIME, 'yyyyMMdd') >= #{today}
+          AND to_char(r.FETCHTTIME, 'yyyyMMdd') &lt;= #{today}
+    </select>
+</mapper>

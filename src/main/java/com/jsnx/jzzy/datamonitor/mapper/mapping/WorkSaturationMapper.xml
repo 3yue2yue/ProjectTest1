@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.WorkSaturationMapper">
+    <resultMap type="com.jsnx.jzzy.datamonitor.entity.WorkSaturation" id="WorkSaturation">
+        <result column="ROLE_NAME" property="roleName"/>
+        <result column="linenum" property="lineNum"/>
+        <result column="stopnum" property="stopNum"/>
+        <result column="rnum" property="rNum"/>
+    </resultMap>
+
+    <select id="querySqWorkSaturation" resultMap="WorkSaturation">
+
+        <!--select count(b.user_state) num,a.name from(
+            select q.user_state,q.user_no from sm_users_tb q
+            where q.user_state=#{state}
+        ) b
+        full join sunbpm.workitem a
+        on a.executor = b.user_no
+        where a.name not in ('PSQ', 'HSQ', 'MSQ')
+        group by a.name-->
+        select x.ROLE_NAME,x.linenum,x.stopnum,y.rnum from
+        (SELECT A.ROLE_NO, A.ROLE_NAME, SUM(CASE WHEN C.USER_STATE != '1' THEN 1 ELSE 0 END) linenum,SUM(CASE WHEN C.USER_STATE = '4' THEN 1 ELSE 0 END) stopnum
+        FROM SM_ROLE_TB A
+        LEFT JOIN SM_USER_ROLE_TB B ON A.ROLE_NO = B.ROLE_NO
+        LEFT JOIN SM_USERS_TB C ON C.USER_NO = B.USER_NO
+        WHERE A.ROLE_NO IN('SQ0001', 'SQ0002', 'SQ0003')
+        GROUP BY A.ROLE_NO, A.ROLE_NAME) x
+        left join
+        (select b.flow_node,NVL(t.rnum,0) rnum,b.role_no from
+        (select distinct q.flow_node,q.role_no from sunds.sm_flow_node_param_tb q where q.flow_node in ('HSQ', 'PSQ', 'MSQ')) b
+        full join
+        (select t.name,count(t.name) rnum from SUNBPM.WORKITEM t WHERE t.state='2' and t.name in ('MSQ','PSQ','HSQ') GROUP by t.name) t
+        on b.role_no = t.name) y
+        on x.role_no = y.role_no
+    </select>
+
+    <select id="queryZyWorkSaturation" resultMap="WorkSaturation">
+
+        <!--select count(b.user_state) num,a.name from(
+            select q.user_state,q.user_no from sm_users_tb q
+            where q.user_state=#{state}
+        ) b
+        full join sunbpm.workitem a
+        on a.executor = b.user_no
+        where a.name  in ('PSQ', 'HSQ', 'MSQ')
+        group by a.name-->
+        select x.ROLE_NAME,x.linenum,x.stopnum,y.rnum from (
+        SELECT A.ROLE_NO, A.ROLE_NAME, SUM(CASE WHEN C.USER_STATE != '1' THEN 1 ELSE 0 END) linenum,SUM(CASE WHEN C.USER_STATE = '4' THEN 1 ELSE 0 END) stopnum
+        FROM SM_ROLE_TB A
+        LEFT JOIN SM_USER_ROLE_TB B ON A.ROLE_NO = B.ROLE_NO
+        LEFT JOIN SM_USERS_TB C ON C.USER_NO = B.USER_NO
+        WHERE A.ROLE_NO IN('ZY0001', 'ZY0002', 'ZY0003','ZY0004')
+        GROUP BY A.ROLE_NO, A.ROLE_NAME) x
+        left join
+        (select sum(c.rnum) rnum,c.role_no from (
+        select NVL(t.rnum,0) rnum,b.role_no from
+        (select distinct q.flow_node,q.role_no from sunds.sm_flow_node_param_tb q where q.role_no in ('ZY0001', 'ZY0002', 'ZY0003', 'ZY0004')) b
+        left join
+        (select t.name,count(t.name) rnum from SUNBPM.WORKITEM t WHERE t.state='2' and t.name not in ('MSQ','PSQ','HSQ')GROUP by t.name) t
+        on b.flow_node = t.name ) c
+        group by c.role_no) y
+        on x.role_no = y.role_no
+    </select>
+
+</mapper>

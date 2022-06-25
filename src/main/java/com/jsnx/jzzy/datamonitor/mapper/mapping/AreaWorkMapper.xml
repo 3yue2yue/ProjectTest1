@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.AreaWorkMapper">
+    <resultMap type="com.jsnx.jzzy.datamonitor.entity.AreaWork" id="AreaWork">
+        <result column="area_name" property="city"/>
+        <result column="num" property="total"/>
+    </resultMap>
+
+    <select id="queryAreaWork" resultMap="AreaWork">
+        <!--select count(t.task_id) num,a.area_name
+            from BP_TRANSLIST_TB t
+            full join BP_AREA_STA a
+            on t.bank_no=a.lrgal_no
+            where t.start_time >= #{startTime}
+            and t.start_time &lt;= #{endTime}
+        group by a.area_name-->
+        select num, area_name from(
+            select count(b.task_id) num,a.area_name from (
+            select t.task_id,t.bank_no from BP_TRANSLIST_TB t
+            where t.task_state in ('4','7','9','10','11','12')
+            and t.start_time >= #{startTime}
+            and t.start_time &lt;= #{endTime}
+            ) b
+            full join BP_AREA_STA a
+            on a.lrgal_no = b.bank_no
+            group by a.area_name)  v
+        where v.area_name in (select c.area_name from BP_AREA_STA C)
+    </select>
+
+</mapper>

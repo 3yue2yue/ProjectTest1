@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.TradeTotalTimeMapper">
+    <resultMap type="com.jsnx.jzzy.datamonitor.entity.TradeTotalTime" id="TradeTotalTime">
+        <result column="ZY_ALL_TIME" property="zyAllTime"/>
+        <result column="SQ_ALL_TIME" property="sqAllTime"/>
+        <result column="ZY_PROCESS_TIME" property="zyProcessTime"/>
+        <result column="SQ_PROCESS_TIME" property="sqProcessTime"/>
+        <result column="ZY_NUM" property="zyNum"/>
+        <result column="SQ_NUM" property="sqNum"/>
+    </resultMap>
+
+    <select id="queryAllTime" resultMap="TradeTotalTime">
+        select sum(case
+               when c.IS_JZZY = '1' then CEIL((TO_DATE(a.CHECKIN_TIME, 'YYYYMMDDHH24MISS') -
+                                               TO_DATE(a.START_TIME, 'YYYYMMDDHH24MISS')) * 24 * 60 *
+                                              60) end)  ZY_ALL_TIME,
+       sum(case
+               when c.IS_JZZY = '0' then CEIL((TO_DATE(a.CHECKIN_TIME, 'YYYYMMDDHH24MISS') -
+                                               TO_DATE(a.START_TIME, 'YYYYMMDDHH24MISS')) * 24 * 60 *
+                                              60) end)  SQ_ALL_TIME,
+       sum(case when c.IS_JZZY = '1' then 1 else 0 end) ZY_NUM,
+       sum(case when c.IS_JZZY = '0' then 1 else 0 end) SQ_NUM
+        from SUNAXIS.BP_OPER_DETAIL_TB a
+                 left join SUNDS.BP_TRANSLIST_TB c on a.TASK_ID = c.TASK_ID
+        where c.TASK_STATE in ('7', '9', '10', '11', '12')
+          and c.START_TIME >= #{startTime}
+          and c.START_TIME &lt;=#{endTime}
+    </select>
+
+    <select id="queryProcessTime" resultMap="TradeTotalTime">
+        select sum(case
+               when c.IS_JZZY = '1' then CEIL((TO_DATE(b.CHECKIN_TIME, 'YYYYMMDDHH24MISS') -
+                                               TO_DATE(b.CHECKOUT_TIME, 'YYYYMMDDHH24MISS')) * 24 * 60 * 60) end) ZY_PROCESS_TIME,
+       sum(case
+               when c.IS_JZZY = '0' then CEIL((TO_DATE(b.CHECKIN_TIME, 'YYYYMMDDHH24MISS') -
+                                               TO_DATE(b.CHECKOUT_TIME, 'YYYYMMDDHH24MISS')) * 24 * 60 * 60) end) SQ_PROCESS_TIME
+        from SUNAXIS.BP_BUSINESS_INST_TB a
+         left join SUNAXIS.BP_OPER_DETAIL_TB b on a.TASK_ID = b.TASK_ID
+         left join SUNDS.BP_TRANSLIST_TB c on a.TASK_ID = c.TASK_ID
+        where c.TASK_STATE in ('7', '9', '10','11','12')
+          and c.START_TIME >= #{startTime}
+          and c.START_TIME &lt;=#{endTime}
+    </select>
+
+</mapper>

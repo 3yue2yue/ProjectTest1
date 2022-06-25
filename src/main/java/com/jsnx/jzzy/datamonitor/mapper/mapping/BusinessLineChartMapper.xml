@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.BusinessLineChartMapper">
+
+    <resultMap id="BusinessLineData" type="TradeNumber">
+        <result column="CREAR_TIME" property="time"/>
+        <result column="COUNTS" property="number"/>
+    </resultMap>
+    <select id="queryBusinessLineChart" resultMap="BusinessLineData">
+        SELECT to_char(FETCHTTIME, 'yyyy-mm-dd : HH24') AS CREAR_TIME, count(FETCHTTIME) AS COUNTS
+        FROM SUNCPS.CPS_RTCTASKSUBMIT_INFO
+        WHERE to_char(FETCHTTIME, 'yyyyMMdd') >= #{today}
+        AND to_char(FETCHTTIME, 'yyyyMMdd') &lt;= #{today}
+        AND SKILLID = #{skillId}
+        GROUP BY to_char(FETCHTTIME, 'yyyy-mm-dd : HH24')
+        ORDER BY CREAR_TIME ASC
+    </select>
+
+</mapper>

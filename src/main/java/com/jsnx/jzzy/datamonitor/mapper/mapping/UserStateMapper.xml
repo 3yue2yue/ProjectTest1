@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.UserStateMapper">
+    <resultMap type="com.jsnx.jzzy.datamonitor.entity.UserStateInfo" id="UserStateInfo">
+        <result column="ROLE_NO" property="roleNo"/>
+        <result column="ROLE_NAME" property="roleName"/>
+        <result column="ONLINE_NUM" property="onlineNum"/>
+        <result column="ALL_NUM" property="allNum"/>
+    </resultMap>
+
+    <select id="queryUserState" resultMap="UserStateInfo">
+        SELECT A.ROLE_NO, A.ROLE_NAME, SUM(CASE WHEN C.USER_STATE != '1' THEN 1 ELSE 0 END) ONLINE_NUM,
+        COUNT(C.USER_NO) ALL_NUM
+        FROM SM_ROLE_TB A
+        LEFT JOIN SM_USER_ROLE_TB B ON A.ROLE_NO = B.ROLE_NO
+        LEFT JOIN SM_USERS_TB C ON C.USER_NO = B.USER_NO
+        WHERE A.ROLE_MODE = '2'
+        AND A.ROLE_NO IN('SQ0001', 'SQ0002', 'SQ0003', 'ZY0001', 'ZY0003', 'ZY0002','ZJ0001')
+        GROUP BY A.ROLE_NO, A.ROLE_NAME
+    </select>
+
+</mapper>

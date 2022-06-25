@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.TotalBusinessMapper">
+    <resultMap type="com.jsnx.jzzy.datamonitor.entity.TotalBusiness" id="TotalBusiness">
+        <result column="AUTH_WORK_NUMBER" property="authWorkNumber"/>
+        <result column="WORK_NUMBER" property="workNumber"/>
+    </resultMap>
+
+    <select id="queryTotalBusiness" resultMap="TotalBusiness">
+        SELECT SUM(CASE WHEN IS_JZZY = '0' AND TASK_STATE IN ('7', '9', '10', '11', '12') THEN 1 ELSE 0 END)      AUTH_WORK_NUMBER,
+               SUM(CASE WHEN IS_JZZY = '1' AND TASK_STATE IN ('4', '7', '9', '10', '11', '12') THEN 1 ELSE 0 END) WORK_NUMBER
+        FROM BP_TRANSLIST_TB
+    </select>
+
+</mapper>

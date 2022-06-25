@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.BusinessStaticMapper">
+    <resultMap id="BusinessStatic" type="com.jsnx.jzzy.datamonitor.entity.BusinessStaticEntity">
+        <result column="onlinePerson" property="onlinePersonNum"/>
+        <result column="onlineOfVerifyNum" property="onlineOfVerifyNum"/>
+        <result column="tempClosedNum" property="tempClosedNum"/>
+        <result column="tempClosedOfVerify" property="tempClosedOfVerify"/>
+    </resultMap>
+
+    <select id="queryOnlinePerson" resultType="integer">
+        select count(distinct i.OPERID) onlinePerson
+        from SUNCPS.APP_MOPERINFO_CONFIG i
+         left join SUNCPS.APP_MOPERROLE_CONFIG r on r.OPERID = i.OPERID
+        where STATUS = 'Y'
+        and r.ROLEID in (select s.ROLEID
+                   from SUNCPS.APP_MROLESKILL_CONFIG s
+                   where s.SKILLID = '1001'
+                     and s.ISENABLE = 1)
+        and i.ISENABLE = 1
+        and r.ISENABLE = 1
+    </select>
+
+    <select id="queryOnlineOfVerifyNum" resultType="integer">
+         select count(distinct i.OPERID) onlineOfVerifyNum
+        from SUNCPS.APP_MOPERINFO_CONFIG i
+         left join SUNCPS.APP_MOPERROLE_CONFIG r on r.OPERID = i.OPERID
+        where STATUS = 'Y'
+        and r.ROLEID in (select s.ROLEID
+                   from SUNCPS.APP_MROLESKILL_CONFIG s
+                   where s.SKILLID = '4001'
+                     and s.ISENABLE = 1)
+        and i.ISENABLE = 1
+        and r.ISENABLE = 1
+    </select>
+    
+    <select id="queryBusinessOfLogging" resultType="integer">
+        select count (distinct l1.CHIPID) from SUNCPS.CPS_LDTTASKWORK_INFO l1
+        <where>
+            <if test="today != null and today != ''">
+                and to_char(l1.CREATETIME, 'yyyyMMdd') >= #{today}
+                and to_char(l1.CREATETIME, 'yyyyMMdd') &lt;= #{today}
+            </if>
+            and l1.ISFETCH ='0'
+            and l1.SKILLID = '1001'
+        </where>
+    </select>
+
+    <select id="queryBusinessOfVerify" resultType="integer">
+        select count ( distinct l1.CHIPID) from SUNCPS.CPS_LDTTASKWORK_INFO l1
+        <where>
+            <if test="today != null and today != ''">
+                and to_char(l1.CREATETIME, 'yyyyMMdd') >= #{today}
+                and to_char(l1.CREATETIME, 'yyyyMMdd') &lt;= #{today}
+            </if>
+            and l1.ISFETCH ='0'
+            and l1.SKILLID = '4001'
+        </where>
+    </select>
+
+    <select id="queryTempClosedNum" resultType="integer">
+        select count(distinct i.OPERID) tempClosedNum
+        from SUNCPS.APP_MOPERINFO_CONFIG i
+         left join SUNCPS.APP_MOPERROLE_CONFIG r on r.OPERID = i.OPERID
+        where STATUS = 'P'
+        and r.ROLEID in (select s.ROLEID
+                   from SUNCPS.APP_MROLESKILL_CONFIG s
+                   where s.SKILLID = '1001'
+                     and s.ISENABLE = 1)
+        and i.ISENABLE = 1
+        and r.ISENABLE = 1
+    </select>
+
+    <select id="queryTempClosedOfVerify" resultType="integer">
+        select count(distinct i.OPERID) tempClosedOfVerify
+        from SUNCPS.APP_MOPERINFO_CONFIG i
+         left join SUNCPS.APP_MOPERROLE_CONFIG r on r.OPERID = i.OPERID
+        where STATUS = 'P'
+        and r.ROLEID in (select s.ROLEID
+                   from SUNCPS.APP_MROLESKILL_CONFIG s
+                   where s.SKILLID = '4001'
+                     and s.ISENABLE = 1)
+        and i.ISENABLE = 1
+        and r.ISENABLE = 1
+    </select>
+
+</mapper>

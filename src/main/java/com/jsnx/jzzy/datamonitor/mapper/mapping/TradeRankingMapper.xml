@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.TradeRankingMapper">
+    <resultMap type="com.jsnx.jzzy.datamonitor.entity.TradeRanking" id="TradeRanking">
+        <result column="FRONT_TRANS_ID" property="tradeCode"/>
+        <result column="NUM" property="num"/>
+        <result column="RANKING" property="ranking"/>
+    </resultMap>
+
+    <select id="queryTradeRanking" resultMap="TradeRanking">
+        select FRONT_TRANS_ID,NUM,dense_rank() over (order by num desc) RANKING
+        from (
+            select FRONT_TRANS_ID, count(TASK_ID) num
+            from BP_TRANSLIST_TB
+            where IS_JZZY =#{type}
+            and START_TIME >=#{startTime}
+            and START_TIME &lt;=#{endTime}
+            group by FRONT_TRANS_ID)
+        where ROWNUM &lt;=#{num}
+        order by num desc
+    </select>
+
+</mapper>

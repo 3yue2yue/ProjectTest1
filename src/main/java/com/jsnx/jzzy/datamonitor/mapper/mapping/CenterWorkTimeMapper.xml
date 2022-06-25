@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.CenterWorkTimeMapper">
+    <resultMap type="com.jsnx.jzzy.datamonitor.entity.CenterWorkTime" id="CenterWorkTime">
+        <result column="TYPE" property="type"/>
+        <result column="OPEN_TIME" property="openTime"/>
+        <result column="END_TIME" property="endTime"/>
+    </resultMap>
+
+    <select id="queryCenterWorkTime" resultMap="CenterWorkTime">
+        select TYPE, OPEN_TIME, END_TIME
+        from SM_CENTER_WORK_TIME
+        where TYPE = #{type}
+    </select>
+
+</mapper>

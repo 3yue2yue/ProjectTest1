@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.LrgalRankingMapper">
+    <resultMap type="com.jsnx.jzzy.datamonitor.entity.LrgalRanking" id="LrgalRanking">
+        <result column="BANK_NO" property="lrgal"/>
+        <result column="LRGAL_NAME" property="lrgalName"/>
+        <result column="NUM" property="num"/>
+        <result column="RANKING" property="ranking"/>
+        <result column="SQ_COMPLETED" property="sqComplete"/>
+        <result column="SQ_TOTAL" property="sqTotal"/>
+        <result column="ZY_COMPLETED" property="zyComplete"/>
+        <result column="ZY_TOTAL" property="zyTotal"/>
+    </resultMap>
+
+    <select id="queryLrgalRanking" resultMap="LrgalRanking">
+        <!--select BANK_NO, LRGAL_NAME, NUM, row_number() over (order by num desc) RANKING
+        from (
+            select a.BANK_NO, b.LRGAL_NAME, count(a.TASK_ID) num
+            from BP_TRANSLIST_TB a
+            left join BP_LRGAL_STA b on a.BANK_NO = b.LRGAL_NO
+            where a.IS_JZZY =#{type}
+            and a.START_TIME >=#{startTime}
+            and a.START_TIME &lt;=#{endTime}
+            group by a.BANK_NO, b.LRGAL_NAME)
+        where ROWNUM &lt;= #{num}
+        order by num desc-->
+        select t.BANK_NO, t.LRGAL_NAME, t.NUM, t.SQ_COMPLETED ,t.SQ_TOTAL,RANKING from(
+        select BANK_NO, LRGAL_NAME, NUM, SQ_COMPLETED ,SQ_TOTAL,  dense_rank() over (order by num desc) RANKING
+        from (
+        select a.BANK_NO, b.LRGAL_NAME, count(a.TASK_ID) num,
+        SUM(CASE WHEN a.IS_JZZY=#{type} AND a.TASK_STATE IN ('4', '7', '9') THEN 1 ELSE 0 END) SQ_COMPLETED,
+        SUM(CASE WHEN a.IS_JZZY=#{type} THEN 1 ELSE 0 END) SQ_TOTAL
+        from BP_TRANSLIST_TB a
+        left join BP_LRGAL_STA b on a.BANK_NO = b.LRGAL_NO
+        where a.IS_JZZY =#{type}
+        and a.START_TIME >=#{startTime}
+        and a.START_TIME &lt;=#{endTime}
+        group by a.BANK_NO, b.LRGAL_NAME)
+        where ROWNUM &lt;=#{num}) t where  t.LRGAL_NAME in (select t.lrgal_name from BP_LRGAL_STA t )
+        order by num desc
+
+    </select>
+
+
+    <select id="queryWorkRanking" resultMap="LrgalRanking">
+        <!--select BANK_NO, LRGAL_NAME, NUM, row_number() over (order by num desc) RANKING
+        from (
+            select a.BANK_NO, b.LRGAL_NAME, count(a.TASK_ID) num
+            from BP_TRANSLIST_TB a
+            left join BP_LRGAL_STA b on a.BANK_NO = b.LRGAL_NO
+            where a.IS_JZZY =#{type}
+            and a.START_TIME >=#{startTime}
+            and a.START_TIME &lt;=#{endTime}
+            group by a.BANK_NO, b.LRGAL_NAME)
+        where ROWNUM &lt;= #{num}
+        order by num desc-->
+        select t.BANK_NO, t.LRGAL_NAME, t.NUM, t.ZY_COMPLETED ,t.ZY_TOTAL,RANKING from(
+        select BANK_NO, LRGAL_NAME, NUM, ZY_COMPLETED ,ZY_TOTAL,  dense_rank() over (order by num desc) RANKING
+        from (
+        select a.BANK_NO, b.LRGAL_NAME, count(a.TASK_ID) num,
+        SUM(CASE WHEN a.IS_JZZY=#{type} AND a.TASK_STATE IN ('7', '9', '10', '11', '12') THEN 1 ELSE 0 END) ZY_COMPLETED,
+        SUM(CASE WHEN a.IS_JZZY=#{type} THEN 1 ELSE 0 END) ZY_TOTAL
+        from BP_TRANSLIST_TB a
+        left join BP_LRGAL_STA b on a.BANK_NO = b.LRGAL_NO
+        where a.IS_JZZY =#{type}
+        and a.START_TIME >=#{startTime}
+        and a.START_TIME &lt;=#{endTime}
+        group by a.BANK_NO, b.LRGAL_NAME)
+        where ROWNUM &lt;=#{num}) t where  t.LRGAL_NAME in (select t.lrgal_name from BP_LRGAL_STA t )
+        order by num desc
+
+    </select>
+
+</mapper>

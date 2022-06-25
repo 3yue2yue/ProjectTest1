@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.TotalCpsAmountMapper">
+    <!--<resultMap id="" type="">
+    </resultMap>-->
+    <select id="queryTotalCps" resultType="integer">
+        select count(distinct r.CHIPID) from SUNCPS.CPS_RTCTASKSUBMIT_INFO r
+        where '1'='1'
+    </select>
+</mapper>

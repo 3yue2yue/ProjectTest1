@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.CpsDoneMapper">
+    <resultMap type="com.jsnx.jzzy.datamonitor.entity.CPSDone" id="CPSDone">
+<!--        <result column="CHIPID" property="chipId"/>-->
+    </resultMap>
+
+    <select id="queryChipIdDone" resultType="integer">
+        select count(distinct r.CHIPID) from SUNCPS.CPS_RTCTASKSUBMIT_INFO r
+        where to_char(r.FETCHTTIME, 'yyyyMMddHHmmSS') >= #{startTime}
+        and to_char(r.FETCHTTIME, 'yyyyMMddHHmmSS') &lt;= #{endTime}
+    </select>
+
+    <select id="queryChipIdIsFetch" resultType="integer">
+        select count (l1.ISFETCH) from SUNCPS.CPS_LDTTASKWORK_INFO l1
+        <where>
+            <if test="startTime != null and startTime != ''">
+                and to_char(l1.CREATETIME, 'yyyyMMddHHmmSS') >= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and to_char(l1.CREATETIME, 'yyyyMMddHHmmSS') &lt;= #{endTime}
+            </if>
+            and l1.ISFETCH ='0'
+        </where>
+    </select>
+
+    <select id="queryChipIdIsProcess" resultType="integer">
+        select count (l1.ISFETCH) from SUNCPS.CPS_LDTTASKWORK_INFO l1
+        <where>
+            <if test="startTime != null and startTime != ''">
+                and to_char(l1.CREATETIME, 'yyyyMMddHHmmSS') >= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and to_char(l1.CREATETIME, 'yyyyMMddHHmmSS') &lt;= #{endTime}
+            </if>
+            and l1.ISFETCH ='1'
+        </where>
+    </select>
+
+    <select id="problemChips" resultType="integer">
+        select count(distinct r.CHIPID) from SUNCPS.CPS_RTCTASKSUBMIT_INFO r
+        where ISSUETYPE != '0'
+        and to_char(r.FETCHTTIME, 'yyyyMMddHHmmSS') >= #{startTime}
+        and to_char(r.FETCHTTIME, 'yyyyMMddHHmmSS') &lt;= #{endTime}
+        and SKILLID ='4001'
+    </select>
+
+
+</mapper>

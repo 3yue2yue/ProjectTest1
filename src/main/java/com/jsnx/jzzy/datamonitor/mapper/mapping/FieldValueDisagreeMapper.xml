@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.FieldValueDisagreeMapper">
+    <resultMap type="com.jsnx.jzzy.datamonitor.entity.FieldValueDisagree" id="FieldValueDisagree">
+        <result column="CHIPID" property="chipId"/>
+        <result column="SKILLID" property="skillId"/>
+    </resultMap>
+
+    <resultMap id="FieldValueMap" type="com.jsnx.jzzy.datamonitor.entity.FieldValueEntity">
+        <result column="chipId" property="chipId"/>
+        <result column="fetchtTime" property="fetchtTime"/>
+        <result column="fieldValue" property="fieldValue"/>
+        <result column="skillId" property="skillId"/>
+    </resultMap>
+
+    <select id="filedValueDisagree" resultMap="FieldValueDisagree">
+        select distinct r.CHIPID, r.SKILLID
+        from SUNCPS.CPS_RTCTASKSUBMIT_INFO r
+        where r.SKILLID = '4001'
+          and r.ISSUETYPE = '0'
+          and to_char(FETCHTTIME, 'yyyyMMddHHmmSS') >= #{startTime}
+          and to_char(FETCHTTIME, 'yyyyMMddHHmmSS') &lt;= #{endTime}
+    </select>
+
+    <select id="getFieldValue" resultMap="FieldValueMap">
+        select R.chipId, R.fetchtTime, R.fieldValue, R.skillId
+        from SUNCPS.CPS_RTCTASKSUBMIT_INFO R
+        where chipId = #{chipId}
+          and to_char(FETCHTTIME, 'yyyyMMddHHmmSS') >= #{startTime}
+          and to_char(FETCHTTIME, 'yyyyMMddHHmmSS') &lt;= #{endTime}
+    </select>
+
+    <select id="getFieldValueLogging" resultMap="FieldValueMap">
+        select chipId, fetchtTime, fieldValue, skillId
+        from SUNCPS.CPS_RTCTASKSUBMIT_INFO R
+        where chipId = #{chipId}
+          and to_char(FETCHTTIME, 'yyyyMMddHHmmSS') >= #{startTime}
+          and to_char(FETCHTTIME, 'yyyyMMddHHmmSS') &lt;= #{endTime}
+          and skillId = '1001'
+    </select>
+
+</mapper>

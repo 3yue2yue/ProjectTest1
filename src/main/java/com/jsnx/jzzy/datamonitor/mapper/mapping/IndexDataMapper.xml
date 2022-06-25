@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.IndexDataMapper">
+    <resultMap type="com.jsnx.jzzy.datamonitor.entity.IndexData" id="IndexData">
+        <result column="refresh" property="refresh"/>
+        <result column="traffic" property="traffic"/>
+        <result column="overrun" property="overrun"/>
+        <result column="rout" property="rout"/>
+    </resultMap>
+
+    <select id="queryIndexData" resultMap="IndexData">
+        select t.rout,t.refresh,t.traffic,t.overrun from SCREEN t WHERE t.rout = #{rout}
+    </select>
+
+    <update id="updateIndexData" parameterType="IndexData">
+        update screen t set t.traffic=#{traffic},t.refresh=#{refresh},t.overrun=#{overrun} where t.rout = #{rout}
+    </update>
+
+</mapper>

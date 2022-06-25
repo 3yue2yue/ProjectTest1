@@ -1,0 +1,40 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: data-monitor
+  datasource:
+    url: jdbc:oracle:thin:@66.6.73.146:1521:sunbizdb
+    username: sunds
+    password: sunds
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+
+    druid:
+      #连接池的配置信息
+      # 初始化大小，最小，最大
+      initialSize: 5
+      minIdle: 5
+      maxActive: 10
+
+#容器
+server:
+  port: 8081
+  tomcat:
+    #tomcat最大线程数，默认为200
+    max-threads: 500
+  undertow:
+    #cpu数量，最小为2 设置IO线程数, 它主要执行非阻塞的任务,它们会负责多个连接, 默认设置每个CPU核心一个线程
+    io-threads: 8
+    #io-threads*8 阻塞任务线程池, 当执行类似servlet请求阻塞操作, undertow会从这个线程池中取得线程,它的值设置取决于系统的负载
+    worker-threads: 500
+    max-http-post-size: 20480
+
+#日志
+logging.config: classpath:logback-spring.xml
+
+
+
+mybatis-plus:
+  typeAliasesPackage: com.jsnx.jzzy.datamonitor.entity
+  mapper-locations: classpath:com/jsnx/jzzy/datamonitor/mapper/mapping/*.xml
+#  ,classpath*:com/../..

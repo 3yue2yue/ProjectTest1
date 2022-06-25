@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!--引入默认配置 -->
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+
+    <!-- jmx支持 -->
+    <jmxConfigurator/>
+
+    <!--属性导入 -->
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="UNKNOWN_APP" />
+
+    <!--文件 appender 定义 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/${APP_NAME:-.}.log</file>
+        <!-- 按每小时滚动文件，如果一个小时内达到10M也会滚动文件, 滚动文件将会压缩成zip格式 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/${APP_NAME}-%d{yyyy-MM-dd}.%i.zip</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
+        </rollingPolicy>
+        <!-- 独立的pattern -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+            <!-- 此处设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--spring profile -->
+    <!-- level 级别：TRACE, DEBUG, INFO, WARN, ERROR, ALL, OFF -->
+    <!--本地开发环境 -->
+    <springProfile name="default,dev,test">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE" />
+        </root>
+        <logger name="com.jsnx" level="DEBUG" />
+        <logger name="mapper" level="DEBUG" />
+        <logger name="org.springframework.jdbc.core" level="DEBUG" />
+    </springProfile>
+
+    <!-- 生产环境、docker 环境 -->
+    <springProfile name="ali,bce,prod,docker">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE" />
+        </root>
+        <logger name="com.jsnx" level="INFO" />
+        <logger name="com.jsnx.jzzy.datamonitor.DataMonintorApplication" level="DEBUG" />
+    </springProfile>
+</configuration>

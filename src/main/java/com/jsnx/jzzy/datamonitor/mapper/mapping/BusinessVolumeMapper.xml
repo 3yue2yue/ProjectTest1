@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsnx.jzzy.datamonitor.mapper.BusinessVolumeMapper">
+    <resultMap type="com.jsnx.jzzy.datamonitor.entity.BusinessVolume" id="BusinessVolume">
+        <result column="user_no" property="userNo"/>
+        <result column="num" property="Num"/>
+        <result column="user_name" property="userName"/>
+    </resultMap>
+
+    <select id="queryBusinessSqVolume" resultMap="BusinessVolume">
+         select count(a.task_id) num,r.user_name,r.user_no from SUNAXIS.BP_OPER_DETAIL_TB a
+        right join sunds.sm_users_tb r
+        on r.user_no = a.user_no
+        where a.start_time >= #{startTime}
+        and a.start_time &lt;= #{endTime}
+        and a.user_no in (select c.user_no from sunds.sm_user_role_tb c)
+        and a.flow_node in ('PSQ', 'HSQ', 'MSQ')
+        group by r.user_name,r.user_no
+        order by num desc
+    </select>
+
+    <select id="queryBusinessZyVolume" resultMap="BusinessVolume">
+         <!--select e.num num,e.user_no user_no,r.user_name user_name from (select a.user_no, count(a.task_id) num
+        from sunaxis.bp_oper_detail_tb a
+        left join sunds.sm_user_role_tb b on a.user_no = b.user_no
+        where a.flow_node not in ('PSQ', 'HSQ', 'MSQ')
+        and a.start_time >= #{startTime}
+        and a.start_time &lt;= #{endTime}
+        and b.role_no in(select c.role_no from sunds.sm_user_role_tb c
+        left join sunaxis.bp_oper_detail_tb a
+        on a.user_no = c.user_no)
+        group by a.user_no) e,sunds.sm_users_tb r
+        where e.user_no= r.user_no
+        order by num desc-->
+
+        select count(a.task_id) num,r.user_name,r.user_no from SUNAXIS.BP_OPER_DETAIL_TB a
+        right join sunds.sm_users_tb r
+        on r.user_no = a.user_no
+        where a.start_time >= #{startTime}
+        and a.start_time &lt;= #{endTime}
+        and a.user_no in (select c.user_no from sunds.sm_user_role_tb c)
+        and a.flow_node not in ('PSQ', 'HSQ', 'MSQ')
+        group by r.user_name,r.user_no
+        order by num desc
+    </select>
+
+</mapper>
